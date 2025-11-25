@@ -30,4 +30,9 @@ export class Database {
 
         return data;
     }
+
+    select(table) {
+        const data = this.#database[table] ?? [];
+        return data;
+    }
 }
