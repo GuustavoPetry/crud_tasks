@@ -31,8 +31,15 @@ export class Database {
         return data;
     }
 
-    select(table) {
-        const data = this.#database[table] ?? [];
+    select(table, search) {
+        let data = this.#database[table] ?? [];
+        if(search) {
+            data = data.filter(row => {
+                return Object.entries(search).some(([key, value]) => {
+                    return row[key].toLowerCase().includes([value.toLowerCase()]);
+                });
+            })
+        }
         return data;
     }
 
@@ -41,6 +48,19 @@ export class Database {
 
         if(rowIndex > -1) {
             this.#database[table][rowIndex] = { id, ...data};
+            this.#persist();
+
+            return this.#database[table][rowIndex];
+        }
+        return null;
+    }
+
+    completeTask(table, id) {
+        const rowIndex = this.#database[table].findIndex(row => row.id == id);
+        const completed_at = Date.now();
+
+        if(rowIndex > -1) {
+            this.#database[table][rowIndex]["completed_at"] = completed_at;
             this.#persist();
 
             return this.#database[table][rowIndex];
