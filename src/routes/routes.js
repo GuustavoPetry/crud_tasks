@@ -30,7 +30,13 @@ export const routes = [
         method: "GET",
         path: buildRoutePath("/tasks"),
         handler: (req, res) => {
-            const data = database.select("tasks");
+            const { search } = req.query;
+
+            const data = database.select("tasks", search ? {
+                title: search,
+                description: search,
+            } : null);
+
             return res.end(JSON.stringify(data));
         }
     },
@@ -48,6 +54,19 @@ export const routes = [
             } else {
                 return res.writeHead(500).end("Falha Interna");
             }
+        }
+    },
+    {
+        method: "PATCH",
+        path: buildRoutePath("/tasks/:id/complete"),
+        handler: (req, res) => {
+            const { id } = req.params;
+            const completeTask = database.completeTask("tasks", id);
+
+            if(completeTask) {
+                return res.end(JSON.stringify(completeTask));
+            }
+            return res.writeHead(500).end();
         }
     },
     {
